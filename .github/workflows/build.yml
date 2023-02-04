@@ -41,6 +41,8 @@ jobs:
            go-version: 1.19
       # Runs a set of commands using the runners shell
       - name: Build Frontend
+        env:
+          CI: false
         run: |
           cd assets
           yarn
