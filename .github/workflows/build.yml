@@ -39,12 +39,19 @@ jobs:
         uses: actions/setup-go@v3
         with:
            go-version: 1.19
+       
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          env: true
+          version: 15.0
+          
       # Runs a set of commands using the runners shell
       - name: Build Frontend
+        working-directory: assets
         env:
           CI: false
         run: |
-          cd assets
           yarn
           yarn run build
           cd build
