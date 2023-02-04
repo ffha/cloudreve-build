@@ -1,0 +1,63 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+        with:
+            repository: cloudreve/Cloudreve
+            submodules: recursive
+            ref: 3.6.2
+
+      # Runs a single command using the runners shell
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+           go-version: 1.19
+      # Runs a set of commands using the runners shell
+      - name: Build Frontend
+        run: |
+          cd assets
+          yarn
+          yarn run build
+          cd build
+          find . -name "*.map" -type f -delete
+          cd ../..
+          zip -r - assets/build >assets.zip
+        
+      - name: Build Backend
+        run: |
+          export COMMIT_SHA=$(git rev-parse --short HEAD)
+          export VERSION=$(git describe --tags)
+          go build -a -o cloudreve -ldflags "-s -w -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.BackendVersion=$VERSION' -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.LastCommit=$COMMIT_SHA'"
+          
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+         path: cloudreve
