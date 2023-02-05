@@ -41,6 +41,7 @@ jobs:
       - name: Build Frontend
         working-directory: assets
         env:
+          NODE_OPTIONS: --openssl-legacy-provider
           CI: false
         run: |
           yarn
