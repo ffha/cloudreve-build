@@ -43,10 +43,9 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build Frontend
         working-directory: assets
-        env:
-          CI: false
         run: |
           yarn
+          unset CI
           yarn run build
           cd build
           find . -name "*.map" -type f -delete
@@ -54,13 +53,12 @@ jobs:
           zip -r - assets/build >assets.zip
         
       - name: Build Backend
-        env:
-          CC: $(brew --prefix llvm@15)/bin/clang
-          CXX: $(brew --prefix llvm@15)/bin/clang++
-          AR: $(brew --prefix llvm@15)/bin/llvm-ar
         run: |
           export COMMIT_SHA=$(git rev-parse --short HEAD)
           export VERSION=$(git describe --tags)
+          export CC=$(brew --prefix llvm@15)/bin/clang
+          export CXX=$(brew --prefix llvm@15)/bin/clang++
+          export AR=$(brew --prefix llvm@15)/bin/llvm-ar
           go build -a -o cloudreve -ldflags "-s -w -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.BackendVersion=$VERSION' -X 'github.com/cloudreve/Cloudreve/v3/pkg/conf.LastCommit=$COMMIT_SHA'"
           
       - name: Upload
