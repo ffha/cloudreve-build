@@ -31,23 +31,12 @@ jobs:
             repository: cloudreve/Cloudreve
             submodules: recursive
             ref: 3.6.2
-
-      # Runs a single command using the runners shell
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-           go-version: 1.19
       
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: CLANG64
-          install: mingw-w64-clang-x86_64-toolchain git zip
+          install: mingw-w64-clang-x86_64-toolchain git zip mingw-w64-clang-x86_64-go  mingw-w64-clang-x86_64-nodejs mingw-w64-clang-x86_64-yarn
       # Runs a set of commands using the runners shell
       - name: Build Frontend
         working-directory: assets
